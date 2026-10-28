@@ -3,6 +3,7 @@ const CACHE = `himym-${VERSION}`;
 
 const CORE = [
   './index.html',
+  './disclaimer/',
   './how-i-met-your-mother.json',
   './assets/hero.jpg'
 ];
@@ -54,16 +55,18 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE);
-      const cached = await cache.match('./index.html');
+      const cached = await cache.match(request, { ignoreSearch: true });
       const refresh = fetch(request, { cache: 'no-cache' }).then((res) => {
-        if (res && res.ok) cache.put('./index.html', res.clone()).catch(() => {});
+        if (res && res.ok) cache.put(request, res.clone()).catch(() => {});
         return res;
       }).catch(() => null);
       if (cached) {
         event.waitUntil(refresh);
         return cached;
       }
-      return (await refresh) || Response.error();
+      const fresh = await refresh;
+      if (fresh) return fresh;
+      return (await cache.match('./index.html')) || Response.error();
     })());
     return;
   }

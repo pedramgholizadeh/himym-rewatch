@@ -83,6 +83,12 @@ tailwind.config = {
         <span id="headerContinueLabel">ادامه تماشا</span>
       </button>
       <a href="#episodes" class="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold text-zinc-200 transition hover:border-brand/60 hover:text-brand">فصل‌ها</a>
+      <a href="disclaimer/" title="بیانیه سلب مسئولیت و سیاست DMCA"
+        class="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-2 text-xs font-semibold text-zinc-300 transition hover:border-brand/60 hover:text-brand sm:px-4">
+        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v5c0 4.5-2.9 8.2-7 10-4.1-1.8-7-5.5-7-10V6l7-3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12l1.8 1.8L15 10"/></svg>
+        <span class="hidden sm:inline">طبق سیاست DMCA عمل می‌کنیم</span>
+        <span class="sm:hidden">DMCA</span>
+      </a>
     </div>
   </div>
 </header>
@@ -199,7 +205,11 @@ tailwind.config = {
       <svg viewBox="0 0 24 24" class="h-4 w-4 text-brand" fill="currentColor"><path d="M12 2a9 9 0 0 0-9 9h18a9 9 0 0 0-9-9Zm-1 9h2v9a2 2 0 0 0 4 0h-2a1 1 0 0 1-1-1v-8Z"/></svg>
       پلیر شخصی HIMYM · دیتاها توی همین مرورگر شما ذخیره می‌مونن
     </p>
-    <p>ساخته‌شده با ❤️ توسط پدرام :)</p>
+    <div class="flex items-center gap-3">
+      <a href="disclaimer/" class="transition hover:text-brand">سلب مسئولیت و DMCA</a>
+      <span class="text-zinc-700">·</span>
+      <p>ساخته‌شده با ❤️ توسط پدرام :)</p>
+    </div>
   </div>
 </footer>
 

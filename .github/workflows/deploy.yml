@@ -32,6 +32,8 @@ jobs:
           mkdir -p _site
           cp index.html sw.js proxy.php how-i-met-your-mother.json .nojekyll _site/
           cp -R assets _site/assets
+          mkdir -p _site/disclaimer
+          cp disclaimer/index.html _site/disclaimer/index.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
