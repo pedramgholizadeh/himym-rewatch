@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://webiro.ir" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+<link rel="preload" as="image" href="assets/hero.jpg" fetchpriority="high">
 <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/vazirmatn/index.css">
 <script>
@@ -61,7 +62,7 @@ tailwind.config = {
   @media (prefers-reduced-motion: reduce) { * { animation-duration: .001ms !important; transition-duration: .001ms !important; } }
 </style>
 </head>
-<body class="bg-ink-900 text-zinc-100 font-sans antialiased selection:bg-brand">
+<body class="overflow-hidden bg-ink-900 text-zinc-100 font-sans antialiased selection:bg-brand">
 
 <!-- ══════════ Header ══════════ -->
 <header id="siteHeader" class="fixed inset-x-0 top-0 z-40 transition-colors duration-300">
@@ -110,7 +111,7 @@ tailwind.config = {
       </h1>
       <p class="mt-3 text-lg font-bold text-brand sm:text-xl">چطور با مادرتان آشنا شدم</p>
       <p class="mt-4 max-w-xl text-sm leading-7 text-zinc-300 sm:text-base">
-        هر ۲۱۱ قسمت، از «قسمت اولِ فصل اول» تا فینال. هر جا که تماشا را رها کنی، دفعه‌ی بعد از همان ثانیه ادامه می‌دهی.
+        هر ۲۱۱ قسمت، از «قسمت اولِ فصل اول» تا قسمت آخر سریال. هر جا که خسته شدی، دفعه‌ی بعد از همون ثانیه میتونی ادامه بدی.
       </p>
 
       <div class="mt-7 flex flex-wrap items-center gap-3">
@@ -193,9 +194,9 @@ tailwind.config = {
   <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-8 text-xs text-zinc-500 sm:flex-row sm:px-6">
     <p class="flex items-center gap-2">
       <svg viewBox="0 0 24 24" class="h-4 w-4 text-brand" fill="currentColor"><path d="M12 2a9 9 0 0 0-9 9h18a9 9 0 0 0-9-9Zm-1 9h2v9a2 2 0 0 0 4 0h-2a1 1 0 0 1-1-1v-8Z"/></svg>
-      پلیر شخصی HIMYM · پیشرفت تماشا فقط در همین مرورگر ذخیره می‌شود.
+      پلیر شخصی HIMYM · دیتاها توی همین مرورگر شما ذخیره می‌مونن
     </p>
-    <p>ساخته‌شده با Tailwind CSS</p>
+    <p>ساخته‌شده با ❤️ توسط پدرام :)</p>
   </div>
 </footer>
 
@@ -317,6 +318,28 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- VPN notice -->
+<div id="vpnNotice" class="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md transition-opacity duration-200">
+  <div role="dialog" aria-modal="true" aria-labelledby="vpnTitle" aria-describedby="vpnDesc"
+    class="w-full max-w-md animate-floatIn rounded-3xl border border-white/10 bg-ink-800/95 p-6 text-center shadow-2xl sm:p-7">
+    <span class="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-brand/15 text-brand ring-1 ring-brand/30">
+      <svg viewBox="0 0 24 24" class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/>
+        <path stroke-linecap="round" d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/>
+        <path stroke-linecap="round" d="m4 4 16 16"/>
+      </svg>
+    </span>
+    <h2 id="vpnTitle" class="mt-5 text-xl font-black text-white">برای تماشا، VPN را خاموش کن :(</h2>
+    <p id="vpnDesc" class="mt-3 text-sm leading-7 text-zinc-300">
+      از اونجایی که تمامی لینک‌های سریال روی سرورهای ایرانه، متاسفانه باید وی‌پی‌انت رو خاموش کنی تا بتونی سریال ببینی :(
+    </p>
+    <button id="vpnOk" type="button"
+      class="mt-6 w-full rounded-xl bg-brand px-5 py-3 text-sm font-black text-ink-900 transition hover:bg-brand-400 active:scale-[.98]">
+      فهمیدم :(
+    </button>
+  </div>
+</div>
+
 <!-- toast -->
 <div id="toast" class="pointer-events-none fixed inset-x-0 bottom-6 z-[200] flex justify-center px-4">
   <div id="toastInner" class="pointer-events-auto hidden max-w-md items-center gap-3 rounded-2xl border border-white/10 bg-ink-800/95 px-4 py-3 text-sm text-zinc-100 shadow-2xl backdrop-blur-xl"></div>
@@ -356,6 +379,7 @@ tailwind.config = {
     pipBtn: $('#pipBtn'), fullscreenBtn: $('#fullscreenBtn'),
     toggleDrawer: $('#toggleDrawer'), drawer: $('#drawer'), closeDrawer: $('#closeDrawer'), drawerList: $('#drawerList'),
     drawerSeason: $('#drawerSeason'), drawerMeta: $('#drawerMeta'),
+    vpnNotice: $('#vpnNotice'), vpnOk: $('#vpnOk'),
     toast: $('#toastInner')
   };
 
@@ -374,6 +398,7 @@ tailwind.config = {
   let autoNextTimer = null;
   let lastRenderedGrid = -1;
   let hashPushed = false;
+  let pendingRoute = null;
 
   /* ───────── storage ───────── */
 
@@ -470,6 +495,28 @@ tailwind.config = {
     els.toast.classList.remove('flex');
     els.toast.innerHTML = '';
   }
+
+  function dismissVpnNotice() {
+    if (!els.vpnNotice || els.vpnNotice.classList.contains('hidden')) return;
+    els.vpnNotice.classList.add('opacity-0');
+    document.body.classList.remove('overflow-hidden');
+    setTimeout(() => {
+      els.vpnNotice.classList.add('hidden');
+      els.vpnNotice.classList.remove('flex');
+    }, 200);
+    if (pendingRoute) {
+      const route = pendingRoute;
+      pendingRoute = null;
+      openEpisode(route.si, route.ei, { push: false });
+    }
+  }
+  els.vpnOk.addEventListener('click', dismissVpnNotice);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !els.vpnNotice.classList.contains('hidden')) {
+      e.preventDefault();
+      dismissVpnNotice();
+    }
+  });
 
   /* ───────── page render ───────── */
 
@@ -1117,11 +1164,20 @@ tailwind.config = {
       updateCards();
 
       const route = parseHash();
-      if (route) openEpisode(route.si, route.ei, { push: false });
+      if (route) {
+        if (els.vpnNotice.classList.contains('hidden')) openEpisode(route.si, route.ei, { push: false });
+        else pendingRoute = route;
+      }
     } catch (err) {
       console.error(err);
       els.episodeGrid.innerHTML = '<p class="col-span-full rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center text-sm text-red-300">داده‌ی قسمت‌ها بارگذاری نشد. فایل how-i-met-your-mother.json را کنار index.html بذار و صفحه را دوباره باز کن.</p>';
     }
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
   }
 
   boot();
