@@ -55,13 +55,30 @@
 ## اجرای محلی
 
 ```bash
-python3 -m http.server 8000
-# http://localhost:8000
+php -S 127.0.0.1:8000
+# http://localhost:8000 — proxy.php هم همین‌جا اجرا می‌شود
 ```
 
 Service Worker فقط روی `localhost` یا HTTPS کار می‌کند.
 
-برای تست `proxy.php` به PHP نیاز دارید؛ توجه کنید سرور داخلی PHP روی macOS تک‌رشته‌ای است و برای تست seek مناسب نیست.
+## عیب‌یابی پخش
+
+GitHub Pages فقط فایل استاتیک سرو می‌کند و PHP اجرا نمی‌کند؛ پس `proxy.php` باید جداگانه روی `https://webiro.ir/api/proxy.php` آپلود شود. نسخه‌ی جدید یک تست سلامت دارد:
+
+```bash
+curl "https://webiro.ir/api/proxy.php?ping=1"
+# باید بدهد: {"ok":true,"version":"2"}
+```
+
+اگر به‌جای این JSON صفحه‌ی HTML یا خطا گرفتی، یعنی نسخه‌ی قدیمی پروکسی روی سرور است. فایل `proxy.php` همین ریپو (یا `https://pedramgholizadeh.github.io/himym-rewatch/proxy.php`) را دانلود کن و روی همان مسیر آپلود/بازنویسی کن.
+
+تست هدر ویدیو (باید `206` و `video/x-matroska` باشد):
+
+```bash
+curl -sI -r 0-1023 "https://webiro.ir/api/proxy.php?url=<URL-encoded-episode-url>"
+```
+
+اگر مرورگر خطای `Format error` می‌دهد، پاسخ پروکسی `Content-Type: text/html` دارد و مرورگر به‌خاطر `nosniff` آن را رد می‌کند؛ پروکسی را دوباره آپلود کن.
 
 ## داده‌ی تماشا
 

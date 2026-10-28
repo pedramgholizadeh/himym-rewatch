@@ -848,12 +848,26 @@ tailwind.config = {
     } else {
       els.spinner.classList.add('hidden');
       showBigPlay(true);
-      toast('پخش این قسمت ممکن نشد. اتصال پروکسی را بررسی کن.', {
-        action: 'تلاش دوباره',
-        onAction: () => loadSource(sourceIdx, true)
+      toast('پخش این قسمت ممکن نشد. VPN را خاموش کن و اتصال پروکسی را بررسی کن.', {
+        action: 'بررسی پروکسی',
+        onAction: checkProxy
       });
     }
   });
+
+  async function checkProxy() {
+    try {
+      const res = await fetch(PROXY.replace('?url=', '') + '?ping=1', { cache: 'no-store' });
+      const data = await res.json();
+      if (!data || !data.ok) throw new Error('bad');
+      toast(`پروکسی به‌روز است (نسخه ${data.version}). دوباره پخش را امتحان کن.`, {
+        action: 'تلاش دوباره',
+        onAction: () => loadSource(sourceIdx, true)
+      });
+    } catch (_) {
+      toast('پروکسی سرور قدیمی است؛ فایل proxy.php جدید را روی webiro.ir آپلود کن.');
+    }
+  }
 
   /* ───────── controls ───────── */
 

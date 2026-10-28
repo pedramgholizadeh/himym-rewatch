@@ -2,6 +2,9 @@
 /**
  * Streaming proxy: forwards Range requests and status codes so the browser
  * can seek inside .mkv files, and forces a video Content-Type.
+ *
+ * Deployed at: https://webiro.ir/api/proxy.php
+ * Health check: https://webiro.ir/api/proxy.php?ping=1
  */
 declare(strict_types=1);
 
@@ -12,6 +15,7 @@ while (ob_get_level() > 0) {
     @ob_end_clean();
 }
 
+const PROXY_VERSION = '2';
 const ERROR_VIDEO = 'https://webiro.ir/stream/assets/error.mp4';
 const ALLOWED_HOSTS = ['giftmond.ir'];
 
@@ -22,6 +26,14 @@ function fail(int $code = 302): void
     } else {
         http_response_code($code);
     }
+    exit;
+}
+
+if (isset($_GET['ping'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+    header('X-Proxy-Version: ' . PROXY_VERSION);
+    echo json_encode(['ok' => true, 'version' => PROXY_VERSION], JSON_UNESCAPED_SLASHES);
     exit;
 }
 
@@ -73,6 +85,8 @@ foreach (['HTTP_RANGE', 'HTTP_IF_RANGE', 'HTTP_IF_MODIFIED_SINCE', 'HTTP_IF_NONE
 
 $contentType = mime_for($url);
 $forwarded  = [];
+$hasRange   = false;
+$upstreamCode = 0;
 $headersSent = false;
 $aborted     = false;
 
@@ -88,26 +102,34 @@ curl_setopt_array($ch, [
     CURLOPT_TIMEOUT         => 0,
     CURLOPT_BUFFERSIZE      => 1 << 16,
     CURLOPT_NOBODY          => strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD',
-    CURLOPT_HEADERFUNCTION  => function ($ch, string $line) use (&$forwarded, &$headersSent, &$aborted) {
+    CURLOPT_HEADERFUNCTION  => function ($ch, string $line) use (&$forwarded, &$hasRange, &$upstreamCode, &$headersSent, &$aborted, $contentType) {
         $trimmed = trim($line);
 
         if (preg_match('~^HTTP/\S+\s+(\d{3})~', $trimmed, $m)) {
-            $code = (int)$m[1];
-            if ($code >= 400) {
+            $upstreamCode = (int)$m[1];
+            if ($upstreamCode >= 400) {
                 $aborted = true;
                 return 0;
             }
-            http_response_code($code);
             return strlen($line);
         }
 
         if ($trimmed === '') {
             if (!$headersSent && !$aborted) {
+                $code = $upstreamCode ?: 200;
+                // Some backends stream a partial body while still answering 200.
+                if ($code === 200 && $hasRange) {
+                    $code = 206;
+                }
+                http_response_code($code);
                 header_remove('Content-Encoding');
-                header('Content-Type: ' . $GLOBALS['contentType']);
+                header('Content-Type: ' . $contentType);
                 header('Accept-Ranges: bytes');
                 header('Cache-Control: public, max-age=86400');
+                header('X-Proxy-Version: ' . PROXY_VERSION);
                 header('X-Accel-Buffering: no');
+                header('Access-Control-Allow-Origin: *');
+                header('Access-Control-Expose-Headers: Content-Range, Content-Length, Accept-Ranges');
                 foreach ($forwarded as $name => $value) {
                     header($name . ': ' . $value);
                 }
@@ -119,6 +141,9 @@ curl_setopt_array($ch, [
         if (str_contains($trimmed, ':')) {
             [$name, $value] = explode(':', $trimmed, 2);
             $key = strtolower(trim($name));
+            if ($key === 'content-range' && trim($value) !== '') {
+                $hasRange = true;
+            }
             if (in_array($key, ['content-length', 'content-range', 'last-modified', 'etag'], true)) {
                 $forwarded[$name] = trim($value);
             }
