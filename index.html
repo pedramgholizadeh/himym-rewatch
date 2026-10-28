@@ -249,7 +249,7 @@ tailwind.config = {
       <div id="seekTip" class="pointer-events-none absolute -top-8 hidden -translate-x-1/2 rounded-lg bg-black/85 px-2 py-1 text-[11px] font-bold tabular-nums text-white ring-1 ring-white/10"></div>
     </div>
 
-    <div class="flex items-center gap-1 sm:gap-3">
+    <div dir="ltr" class="flex items-center gap-1 sm:gap-3">
       <button id="playPause" type="button" aria-label="پخش/توقف"
         class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand text-ink-900 transition hover:bg-brand-400 active:scale-95 sm:h-11 sm:w-11">
         <svg id="playIcon" viewBox="0 0 24 24" class="h-6 w-6 translate-x-[1px]" fill="currentColor"><path d="M7 6.13v11.74c0 .89 1.03 1.44 1.82.95l9.63-5.87a1.1 1.1 0 0 0 0-1.9L8.82 5.18C8.03 4.7 7 5.24 7 6.13Z"/></svg>
@@ -277,7 +277,7 @@ tailwind.config = {
         <span id="curTime">۰۰:۰۰</span> <span class="text-zinc-500">/</span> <span id="durTime">۰۰:۰۰</span>
       </div>
 
-      <div class="mr-auto flex items-center gap-1.5 sm:gap-2">
+      <div class="ml-auto flex items-center gap-1.5 sm:gap-2">
         <button id="speedBtn" type="button" class="shrink-0 rounded-full px-1.5 py-2 text-[11px] font-black text-white/85 transition hover:bg-white/10 hover:text-white sm:px-2.5" aria-label="سرعت پخش">
           ۱×
         </button>
